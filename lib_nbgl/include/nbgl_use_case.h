@@ -492,7 +492,7 @@ void nbgl_useClock(const nbgl_icon_details_t *h1,
     const nbgl_icon_details_t *h2,
     const nbgl_icon_details_t *m1,
     const nbgl_icon_details_t *m2,
-    bool isSuccess, nbgl_callback_t quitCallback);
+    bool isSuccess, nbgl_callback_t quitCallback, nbgl_callback_t continueCallback);
 
 void nbgl_useCaseConfirm(const char     *message,
                          const char     *subMessage,

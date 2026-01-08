@@ -1078,7 +1078,7 @@ static nbgl_container_t *addContentClock(nbgl_layoutInternal_t      *layoutInt,
         image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
         image->buffer               = PIC(info->icon);
         image->obj.alignment        = CENTER;
-        image->obj.alignmentMarginY = -190;
+        image->obj.alignmentMarginY = -150;
         image->obj.alignmentMarginX = -70;
 
         fullHeight += image->buffer->height + info->iconHug;
@@ -1091,7 +1091,7 @@ static nbgl_container_t *addContentClock(nbgl_layoutInternal_t      *layoutInt,
         image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
         image->buffer               = PIC(info->icon2);
         image->obj.alignment        = CENTER;
-        image->obj.alignmentMarginY = -190;
+        image->obj.alignmentMarginY = -150;
         image->obj.alignmentMarginX = 70;
 
         fullHeight += image->buffer->height + info->iconHug;
@@ -1099,31 +1099,31 @@ static nbgl_container_t *addContentClock(nbgl_layoutInternal_t      *layoutInt,
         container->nbChildren++;
     }
 
-    // if (info->icon3 != NULL) {
-    //     image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-    //     image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
-    //     image->buffer               = PIC(info->icon3);
-    //     image->obj.alignment        = CENTER;
-    //     image->obj.alignmentMarginY = 10;
-    //     image->obj.alignmentMarginX = -70;
+    if (info->icon3 != NULL) {
+        image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+        image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
+        image->buffer               = PIC(info->icon3);
+        image->obj.alignment        = CENTER;
+        image->obj.alignmentMarginY = 150;
+        image->obj.alignmentMarginX = -70;
 
-    //     fullHeight += image->buffer->height + info->iconHug;
-    //     container->children[container->nbChildren] = (nbgl_obj_t *) image;
-    //     container->nbChildren++;
-    // }
+        fullHeight += image->buffer->height + info->iconHug;
+        container->children[container->nbChildren] = (nbgl_obj_t *) image;
+        container->nbChildren++;
+    }
 
-    // if (info->icon4 != NULL) {
-    //     image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-    //     image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
-    //     image->buffer               = PIC(info->icon4);
-    //     image->obj.alignment        = CENTER;
-    //     image->obj.alignmentMarginY = 10;
-    //     image->obj.alignmentMarginX = 70;
+    if (info->icon4 != NULL) {
+        image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+        image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
+        image->buffer               = PIC(info->icon4);
+        image->obj.alignment        = CENTER;
+        image->obj.alignmentMarginY = 150;
+        image->obj.alignmentMarginX = 70;
 
-    //     fullHeight += image->buffer->height + info->iconHug;
-    //     container->children[container->nbChildren] = (nbgl_obj_t *) image;
-    //     container->nbChildren++;
-    // }
+        fullHeight += image->buffer->height + info->iconHug;
+        container->children[container->nbChildren] = (nbgl_obj_t *) image;
+        container->nbChildren++;
+    }
     
     container->layout          = VERTICAL;
     container->obj.alignment   = CENTER;

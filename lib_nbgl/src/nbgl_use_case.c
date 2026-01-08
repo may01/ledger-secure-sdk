@@ -822,7 +822,12 @@ static void pageCallback(int token, uint8_t index)
 // callback used for confirmation
 static void tickerCallback(void)
 {
-    nbgl_pageRelease(pageContext);
+    //printf("tickerCallback \n");
+    nbgl_pageRelease(pageContext);    
+    if (onContinue != NULL) {
+        onContinue();
+        return;
+    }
     if (onQuit != NULL) {
         onQuit();
     }
@@ -1808,6 +1813,11 @@ static void layoutTouchCallback(int token, uint8_t index)
     else if (token == CHOICE_TOKEN) {
         if (onChoice != NULL) {
             onChoice((index == 0) ? true : false);
+        }
+    }
+    else if (token == CONTINUE_TOKEN) {
+        if (onContinue != NULL) {
+            onContinue();
         }
     }
 }
@@ -3494,6 +3504,12 @@ void nbgl_useCaseHomeAndSettings(
     }
 }
 
+
+static void touchClockCallback(int token, uint8_t index)
+{
+    UNUSED(index);
+    onQuit();
+}
 /**
  * @brief Draws a transient (3s) status page, either of success or failure, with the given message
  *
@@ -3505,15 +3521,16 @@ void nbgl_useClock(const nbgl_icon_details_t *h1,
     const nbgl_icon_details_t *h2,
     const nbgl_icon_details_t *m1,
     const nbgl_icon_details_t *m2,
-    bool isSuccess, nbgl_callback_t quitCallback)
+    bool isSuccess, nbgl_callback_t quitCallback, nbgl_callback_t continueCallback)
 {
     nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,
                                                .tickerIntervale = 0,  // not periodic
-                                               .tickerValue     = 1000};
+                                               .tickerValue     = 300*60}; // HERE
     nbgl_pageInfoDescription_t       info   = {0};
 
     reset_callbacks_and_context();
 
+    onContinue = continueCallback;
     onQuit = quitCallback;
     if (isSuccess) {
 #ifdef HAVE_PIEZO_SOUND
@@ -3527,7 +3544,7 @@ void nbgl_useClock(const nbgl_icon_details_t *h1,
     info.centeredInfo.style = LARGE_CASE_INFO;
     info.centeredInfo.text1 = "";
     info.tapActionText      = "";
-    info.tapActionToken     = QUIT_TOKEN;
+    info.tapActionToken     = CONTINUE_TOKEN;
     info.tuneId             = TUNE_TAP_CASUAL;
     
     nbgl_layout_t           *layout;
@@ -3535,7 +3552,7 @@ void nbgl_useClock(const nbgl_icon_details_t *h1,
     layoutDescription.modal          = false;
     layoutDescription.withLeftBorder = true;
 
-    layoutDescription.onActionCallback = &quitCallback;
+    layoutDescription.onActionCallback = &touchClockCallback;
     if (!info.isSwipeable) {
         layoutDescription.tapActionText  = info.tapActionText;
         layoutDescription.tapActionToken = info.tapActionToken;
@@ -3572,6 +3589,7 @@ void nbgl_useClock(const nbgl_icon_details_t *h1,
     // nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
     
     nbgl_layoutDraw(layout);
+    //pageContext             = nbgl_pageDrawInfo(&pageCallback, &ticker, &info);
 
     
     //return (nbgl_page_t *) layout;

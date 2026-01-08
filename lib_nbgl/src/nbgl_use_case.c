@@ -822,7 +822,12 @@ static void pageCallback(int token, uint8_t index)
 // callback used for confirmation
 static void tickerCallback(void)
 {
-    nbgl_pageRelease(pageContext);
+    //printf("tickerCallback \n");
+    nbgl_pageRelease(pageContext);    
+    if (onContinue != NULL) {
+        onContinue();
+        return;
+    }
     if (onQuit != NULL) {
         onQuit();
     }
@@ -1808,6 +1813,11 @@ static void layoutTouchCallback(int token, uint8_t index)
     else if (token == CHOICE_TOKEN) {
         if (onChoice != NULL) {
             onChoice((index == 0) ? true : false);
+        }
+    }
+    else if (token == CONTINUE_TOKEN) {
+        if (onContinue != NULL) {
+            onContinue();
         }
     }
 }
@@ -3492,6 +3502,99 @@ void nbgl_useCaseHomeAndSettings(
     else {
         bundleNavStartHome();
     }
+}
+
+
+static void touchClockCallback(int token, uint8_t index)
+{
+    UNUSED(index);
+    onQuit();
+}
+/**
+ * @brief Draws a transient (3s) status page, either of success or failure, with the given message
+ *
+ * @param message string to set in middle of page (Upper case for success)
+ * @param isSuccess if true, message is drawn in a Ledger style (with corners)
+ * @param quitCallback callback called when quit timer times out or status is manually dismissed
+ */
+void nbgl_useClock(const nbgl_icon_details_t *h1,
+    const nbgl_icon_details_t *h2,
+    const nbgl_icon_details_t *m1,
+    const nbgl_icon_details_t *m2,
+    bool isSuccess, nbgl_callback_t quitCallback, nbgl_callback_t continueCallback)
+{
+    nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,
+                                               .tickerIntervale = 0,  // not periodic
+                                               .tickerValue     = 300*60}; // HERE
+    nbgl_pageInfoDescription_t       info   = {0};
+
+    reset_callbacks_and_context();
+
+    onContinue = continueCallback;
+    onQuit = quitCallback;
+    if (isSuccess) {
+#ifdef HAVE_PIEZO_SOUND
+        os_io_seph_cmd_piezo_play_tune(TUNE_LEDGER_MOMENT);
+#endif  // HAVE_PIEZO_SOUND
+    }
+    info.centeredInfo.icon  = h1;
+    info.centeredInfo.icon2  = h2;
+    info.centeredInfo.icon3  = m1;
+    info.centeredInfo.icon4  = m2;
+    info.centeredInfo.style = LARGE_CASE_INFO;
+    info.centeredInfo.text1 = "";
+    info.tapActionText      = "";
+    info.tapActionToken     = CONTINUE_TOKEN;
+    info.tuneId             = TUNE_TAP_CASUAL;
+    
+    nbgl_layout_t           *layout;
+    nbgl_layoutDescription_t layoutDescription = {0};
+    layoutDescription.modal          = false;
+    layoutDescription.withLeftBorder = true;
+
+    layoutDescription.onActionCallback = &touchClockCallback;
+    if (!info.isSwipeable) {
+        layoutDescription.tapActionText  = info.tapActionText;
+        layoutDescription.tapActionToken = info.tapActionToken;
+        layoutDescription.tapTuneId      = info.tuneId;
+    }
+
+    layoutDescription.ticker.tickerCallback  = ticker.tickerCallback;
+    layoutDescription.ticker.tickerIntervale = ticker.tickerIntervale;
+    layoutDescription.ticker.tickerValue     = ticker.tickerValue;
+
+
+    layout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutAddClockInfo(layout, &info.centeredInfo);
+
+    // TODO HERE
+    // nbgl_layoutButton_t buttonInfo = {.fittingContent = true,
+    //                                       .icon           = NULL,//info.actionButtonIcon,
+    //                                       .onBottom       = true,
+    //                                       .style          = NO_BORDER, //info.actionButtonStyle,
+    //                                       .text           = "QUIT", //info.actionButtonText,
+    //                                       .token          = QUIT_TOKEN,//info.bottomButtonsToken,
+    //                                       .tuneId         = info.tuneId};
+    // nbgl_layoutAddButton(layout, &buttonInfo);
+
+
+    // nbgl_layoutChoiceButtons_t buttonsInfo = {.topText    = info.actionButtonText,
+    //                                                   .bottomText = "Quit app",
+    //                                                   .token      = info.bottomButtonsToken,
+    //                                                   .tuneId     = info.tuneId,
+    //                                                   .topIcon    = info.actionButtonIcon};
+    // buttonsInfo.style                      = (info.actionButtonStyle == BLACK_BACKGROUND)
+    //                                                 ? STRONG_ACTION_AND_FOOTER_STYLE
+    //                                                 : SOFT_ACTION_AND_FOOTER_STYLE;
+    // nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
+    
+    nbgl_layoutDraw(layout);
+    //pageContext             = nbgl_pageDrawInfo(&pageCallback, &ticker, &info);
+
+    
+    //return (nbgl_page_t *) layout;
+    //pageContext             = nbgl_pageDrawInfo(&pageCallback, &ticker, &info);
+    nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 }
 
 /**

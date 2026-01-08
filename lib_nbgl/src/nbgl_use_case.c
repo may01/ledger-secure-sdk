@@ -3535,7 +3535,7 @@ void nbgl_useClock(const nbgl_icon_details_t *h1,
     layoutDescription.modal          = false;
     layoutDescription.withLeftBorder = true;
 
-    layoutDescription.onActionCallback = &pageCallback;
+    layoutDescription.onActionCallback = &quitCallback;
     if (!info.isSwipeable) {
         layoutDescription.tapActionText  = info.tapActionText;
         layoutDescription.tapActionToken = info.tapActionToken;
@@ -3551,14 +3551,14 @@ void nbgl_useClock(const nbgl_icon_details_t *h1,
     nbgl_layoutAddClockInfo(layout, &info.centeredInfo);
 
     // TODO HERE
-    nbgl_layoutButton_t buttonInfo = {.fittingContent = true,
-                                          .icon           = NULL,//info.actionButtonIcon,
-                                          .onBottom       = false,
-                                          .style          = BLACK_BACKGROUND, //info.actionButtonStyle,
-                                          .text           = "QUIT", //info.actionButtonText,
-                                          .token          = info.bottomButtonsToken,
-                                          .tuneId         = info.tuneId};
-    nbgl_layoutAddButton(layout, &buttonInfo);
+    // nbgl_layoutButton_t buttonInfo = {.fittingContent = true,
+    //                                       .icon           = NULL,//info.actionButtonIcon,
+    //                                       .onBottom       = true,
+    //                                       .style          = NO_BORDER, //info.actionButtonStyle,
+    //                                       .text           = "QUIT", //info.actionButtonText,
+    //                                       .token          = QUIT_TOKEN,//info.bottomButtonsToken,
+    //                                       .tuneId         = info.tuneId};
+    // nbgl_layoutAddButton(layout, &buttonInfo);
 
 
     // nbgl_layoutChoiceButtons_t buttonsInfo = {.topText    = info.actionButtonText,
